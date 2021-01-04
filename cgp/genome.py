@@ -300,11 +300,13 @@ class Genome:
 
         new_node_idx: int = self._n_inputs  # First position to be placed is after inputs
         used_node_indices: List[int] = []
+        param_nodes_with_values = {}
 
         while len(addable_nodes) > 0:
 
             old_node_idx = rng.choice(list(addable_nodes))
-
+            if "<p{}>".format(old_node_idx) in self._parameter_names_to_values:
+                param_nodes_with_values[old_node_idx] = new_node_idx
             dna = self._copy_dna_segment(dna, old_node_idx=old_node_idx, new_node_idx=new_node_idx)
 
             for dependencies in node_dependencies.values():
@@ -318,6 +320,12 @@ class Genome:
         self._replace_invalid_input_alleles(dna, rng)
 
         self.dna = dna
+
+        # update parameter_names_to_values
+        for old_node_idx in param_nodes_with_values:
+            self._parameter_names_to_values[
+                param_nodes_with_values[old_node_idx]
+            ] = self._parameter_names_to_values.pop("<p{}>".format(old_node_idx))
 
     def _copy_dna_segment(self, dna: List[int], old_node_idx: int, new_node_idx: int) -> List[int]:
         """ Copy a nodes dna segment from its old node location to a new location. """
