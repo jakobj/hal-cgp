@@ -109,7 +109,7 @@ class CartesianGraph:
         self._n_outputs = genome._n_outputs
         self._n_columns = genome._n_columns
         self._n_rows = genome._n_rows
-        self._parameter_names_to_values = copy.deepcopy(genome._parameter_names_to_values)
+        self._parameter_names_to_values = copy.deepcopy(genome.parameter_names_to_values)
 
         self._nodes = []
 
