@@ -88,7 +88,7 @@ class Genome:
         self._id_unused_gene: int = ID_NON_CODING_GENE
 
         # dictionary to store values of Parameter nodes
-        self.parameter_names_to_values: Dict[str, float] = {}
+        self._parameter_names_to_values: Dict[str, float] = {}
 
         # list of permissible values for every gene
         self._permissible_values: List[np.ndarray] = self.determine_permissible_values()
@@ -305,7 +305,7 @@ class Genome:
         while len(addable_nodes) > 0:
 
             old_node_idx = rng.choice(list(addable_nodes))
-            if "<p{}>".format(old_node_idx) in self.parameter_names_to_values:
+            if "<p{}>".format(old_node_idx) in self._parameter_names_to_values:
                 param_nodes_with_values[old_node_idx] = new_node_idx
             dna = self._copy_dna_segment(dna, old_node_idx=old_node_idx, new_node_idx=new_node_idx)
 
@@ -323,9 +323,9 @@ class Genome:
 
         # update parameter_names_to_values
         for old_node_idx in param_nodes_with_values:
-            self.parameter_names_to_values[
+            self._parameter_names_to_values[
                 "<p{}>".format(param_nodes_with_values[old_node_idx])
-            ] = self.parameter_names_to_values.pop("<p{}>".format(old_node_idx))
+            ] = self._parameter_names_to_values.pop("<p{}>".format(old_node_idx))
 
     def _copy_dna_segment(self, dna: List[int], old_node_idx: int, new_node_idx: int) -> List[int]:
         """ Copy a nodes dna segment from its old node location to a new location. """
@@ -643,7 +643,7 @@ class Genome:
 
         # Lamarckian strategy: parameter values are passed on to
         # offspring
-        new.parameter_names_to_values = self.parameter_names_to_values.copy()
+        new._parameter_names_to_values = self._parameter_names_to_values.copy()
 
         return new
 
@@ -668,9 +668,9 @@ class Genome:
 
         for name, value in torch_cls.named_parameters():
             name = f"<{name[1:]}>"
-            if name in self.parameter_names_to_values:
-                self.parameter_names_to_values[name] = value.item()
-                assert not np.isnan(self.parameter_names_to_values[name])
+            if name in self._parameter_names_to_values:
+                self._parameter_names_to_values[name] = value.item()
+                assert not np.isnan(self._parameter_names_to_values[name])
                 any_parameter_updated = True
 
         return any_parameter_updated
@@ -682,7 +682,7 @@ class Genome:
             assert issubclass(node_type, OperatorNode)
             for parameter_name in node_type._parameter_names:
                 parameter_name_with_idx = "<" + parameter_name[1:-1] + str(region_idx) + ">"
-                if parameter_name_with_idx not in self.parameter_names_to_values:
-                    self.parameter_names_to_values[
+                if parameter_name_with_idx not in self._parameter_names_to_values:
+                    self._parameter_names_to_values[
                         parameter_name_with_idx
                     ] = node_type.initial_value(parameter_name_with_idx)

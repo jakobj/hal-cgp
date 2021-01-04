@@ -622,8 +622,8 @@ def test_genome_reordering_empirically(rng):
     ]
 
     genome.dna = dna_fixed
-    genome.parameter_names_to_values["<p7>"] = 0.9
-    genome.parameter_names_to_values["<p8>"] = 0.4
+    genome._parameter_names_to_values["<p7>"] = 0.9
+    genome._parameter_names_to_values["<p8>"] = 0.4
 
     sympy_expression = cgp.CartesianGraph(genome).to_sympy()
     n_reorderings = 100
