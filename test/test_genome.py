@@ -542,10 +542,10 @@ def test_mutate_does_not_reinitialize_parameters(genome_params, rng, mutation_ra
     genome_params["primitives"] = (cgp.Parameter,)
     genome = cgp.Genome(**genome_params)
     genome.randomize(rng)
-    genome._parameter_names_to_values["<p2>"] = math.pi
-    parameter_names_to_values_before = genome._parameter_names_to_values.copy()
+    genome.parameter_names_to_values["<p2>"] = math.pi
+    parameter_names_to_values_before = genome.parameter_names_to_values.copy()
     genome.mutate(mutation_rate, rng)
-    assert genome._parameter_names_to_values["<p2>"] == pytest.approx(
+    assert genome.parameter_names_to_values["<p2>"] == pytest.approx(
         parameter_names_to_values_before["<p2>"]
     )
 
@@ -568,10 +568,10 @@ def test_genome_reordering_empirically(rng):
 
     # f(x_0, x_1) = x_0 ** 2 - x_1 + 1 + 0.5
     dna_fixed = [
-        ID_INPUT_NODE, # x_0 (address 0)
+        ID_INPUT_NODE,  # x_0 (address 0)
         ID_NON_CODING_GENE,
         ID_NON_CODING_GENE,
-        ID_INPUT_NODE, # x_1 (address 1)
+        ID_INPUT_NODE,  # x_1 (address 1)
         ID_NON_CODING_GENE,
         ID_NON_CODING_GENE,
         0,  # Mul ->  x_0^2 (address 2)
@@ -622,15 +622,17 @@ def test_genome_reordering_empirically(rng):
     ]
 
     genome.dna = dna_fixed
-    genome._parameter_names_to_values["<p7>"] = 0.9
-    genome._parameter_names_to_values["<p8>"] = 0.4
+    genome.parameter_names_to_values["<p7>"] = 0.9
+    genome.parameter_names_to_values["<p8>"] = 0.4
 
     sympy_expression = cgp.CartesianGraph(genome).to_sympy()
     n_reorderings = 100
     for _ in range(n_reorderings):
         genome.reorder(rng)
-        sympy_expression_after_reorder = cgp.CartesianGraph(genome).to_sympy()
+        new_graph = cgp.CartesianGraph(genome)
+        sympy_expression_after_reorder = new_graph.to_sympy()
         assert sympy_expression_after_reorder == sympy_expression
+        print("Works for {} reorderings".format(_ + 1))
 
 
 def test_genome_reordering_parameterization_consistency(rng):
