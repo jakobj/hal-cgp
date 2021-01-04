@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Generator, List, Optional, Set, Tuple, Type, Union
 
 import numpy as np
@@ -300,14 +301,15 @@ class Genome:
 
         new_node_idx: int = self._n_inputs  # First position to be placed is after inputs
         used_node_indices: List[int] = []
-        param_nodes_with_values = {}
+        old_to_new_parameter_names_to_values: Dict[Tuple[str, str], float] = {}
 
         while len(addable_nodes) > 0:
 
             old_node_idx = rng.choice(list(addable_nodes))
-            if "<p{}>".format(old_node_idx) in self._parameter_names_to_values:
-                param_nodes_with_values[old_node_idx] = new_node_idx
             dna = self._copy_dna_segment(dna, old_node_idx=old_node_idx, new_node_idx=new_node_idx)
+            old_to_new_parameter_names_to_values.update(
+                self._convert_parameter_names(old_node_idx, new_node_idx)
+            )
 
             for dependencies in node_dependencies.values():
                 dependencies.discard(old_node_idx)
@@ -318,14 +320,34 @@ class Genome:
 
         self._update_input_genes(dna, used_node_indices)
         self._replace_invalid_input_alleles(dna, rng)
+        self._update_parameters_names_to_values(old_to_new_parameter_names_to_values)
 
         self.dna = dna
 
-        # update parameter_names_to_values
-        for old_node_idx in param_nodes_with_values:
-            self._parameter_names_to_values[
-                "<p{}>".format(param_nodes_with_values[old_node_idx])
-            ] = self._parameter_names_to_values.pop("<p{}>".format(old_node_idx))
+    def _convert_parameter_names(
+        self, old_node_idx: int, new_node_idx: int
+    ) -> Dict[Tuple[str, str], float]:
+        d: Dict[Tuple[str, str], float] = {}
+        for old_parameter_name in self._parameter_names_to_values:
+            g = re.findall(f"<([a-z]+){old_node_idx}>", old_parameter_name)
+            if len(g) != 0:
+                assert len(g) == 1
+                new_parameter_name: str = "<" + g[0] + str(new_node_idx) + ">"
+                d[(old_parameter_name, new_parameter_name)] = self._parameter_names_to_values[
+                    old_parameter_name
+                ]
+        return d
+
+    def _update_parameters_names_to_values(
+        self, old_to_new_parameter_names_to_values: Dict[Tuple[str, str], float]
+    ) -> None:
+        # first we delete all old parameter names
+        for old_parameter_name, _ in old_to_new_parameter_names_to_values:
+            del self._parameter_names_to_values[old_parameter_name]
+
+        # then we add new parameter names and corresponding values
+        for (_, new_parameter_name), v in old_to_new_parameter_names_to_values.items():
+            self._parameter_names_to_values[new_parameter_name] = v
 
     def _copy_dna_segment(self, dna: List[int], old_node_idx: int, new_node_idx: int) -> List[int]:
         """ Copy a nodes dna segment from its old node location to a new location. """

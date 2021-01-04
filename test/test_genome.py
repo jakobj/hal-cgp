@@ -542,10 +542,10 @@ def test_mutate_does_not_reinitialize_parameters(genome_params, rng, mutation_ra
     genome_params["primitives"] = (cgp.Parameter,)
     genome = cgp.Genome(**genome_params)
     genome.randomize(rng)
-    genome.parameter_names_to_values["<p2>"] = math.pi
-    parameter_names_to_values_before = genome.parameter_names_to_values.copy()
+    genome._parameter_names_to_values["<p2>"] = math.pi
+    parameter_names_to_values_before = genome._parameter_names_to_values.copy()
     genome.mutate(mutation_rate, rng)
-    assert genome.parameter_names_to_values["<p2>"] == pytest.approx(
+    assert genome._parameter_names_to_values["<p2>"] == pytest.approx(
         parameter_names_to_values_before["<p2>"]
     )
 
@@ -632,7 +632,6 @@ def test_genome_reordering_empirically(rng):
         new_graph = cgp.CartesianGraph(genome)
         sympy_expression_after_reorder = new_graph.to_sympy()
         assert sympy_expression_after_reorder == sympy_expression
-        print("Works for {} reorderings".format(_ + 1))
 
 
 def test_genome_reordering_parameterization_consistency(rng):
