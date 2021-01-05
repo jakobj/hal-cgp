@@ -328,17 +328,19 @@ class Genome:
         self, old_node_idx: int, new_node_idx: int
     ) -> Dict[Tuple[str, str], float]:
         node_id: int = self.dna[old_node_idx * self._length_per_region]
+        node_type = self._primitives[node_id]
         d: Dict[Tuple[str, str], float] = {}
-        for old_parameter_name in self._get_parameter_names_with_idx_of_node(
-            node_id, old_node_idx
-        ):
-            g = re.findall(f"<([a-z]+){old_node_idx}>", old_parameter_name)
-            if len(g) != 0:
-                assert len(g) == 1
-                new_parameter_name: str = "<" + g[0] + str(new_node_idx) + ">"
-                d[(old_parameter_name, new_parameter_name)] = self._parameter_names_to_values[
-                    old_parameter_name
-                ]
+        if issubclass(node_type, OperatorNode):
+            for old_parameter_name in self._get_parameter_names_with_idx_of_node(
+                node_type, old_node_idx
+            ):
+                g = re.findall(f"<([a-z]+){old_node_idx}>", old_parameter_name)
+                if len(g) != 0:
+                    assert len(g) == 1
+                    new_parameter_name: str = "<" + g[0] + str(new_node_idx) + ">"
+                    d[(old_parameter_name, new_parameter_name)] = self._parameter_names_to_values[
+                        old_parameter_name
+                    ]
         return d
 
     def _update_parameters_names_to_values(
@@ -704,18 +706,17 @@ class Genome:
         for region_idx, region in self.iter_hidden_regions():
             node_id = region[0]
             node_type = self._primitives[node_id]
+            assert issubclass(node_type, OperatorNode)
             for parameter_name_with_idx in self._get_parameter_names_with_idx_of_node(
-                node_id, region_idx
+                node_type, region_idx
             ):
                 if parameter_name_with_idx not in self._parameter_names_to_values:
                     self._parameter_names_to_values[
                         parameter_name_with_idx
                     ] = node_type.initial_value(parameter_name_with_idx)
 
-    def _get_parameter_names_with_idx_of_node(self, node_id: int, region_idx: int) -> List[str]:
+    def _get_parameter_names_with_idx_of_node(self, node_type: Type[OperatorNode], region_idx: int) -> List[str]:
         parameter_names_with_idx: List[str] = []
-        node_type = self._primitives[node_id]
-        assert issubclass(node_type, OperatorNode)
         for parameter_name in node_type._parameter_names:
             parameter_names_with_idx.append("<" + parameter_name[1:-1] + str(region_idx) + ">")
         return parameter_names_with_idx
