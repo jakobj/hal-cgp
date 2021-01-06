@@ -146,6 +146,8 @@ class EvolutionStrategies:
                     s, utility, learning_rate_sigma, mu, sigma
                 )
 
+                if np.all(sigma < self.min_sigma):
+                    break
                 sigma[sigma < self.min_sigma] = self.min_sigma
 
             ind.update_parameters_from_numpy_array(mu, params_names)
