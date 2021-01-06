@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class EvolutionStrategies:
     def __init__(
         self,
-        objective: Callable[[Callable[["np.ndarray[float]"], "np.ndarray[float]"]], float],
+        objective: Callable[[IndividualBase], float],
         seed: int,
         *,
         learning_rate_mu: float = 1.0,
@@ -177,7 +177,7 @@ class EvolutionStrategies:
     ) -> float:
         new_ind: IndividualBase = ind.clone()
         new_ind.update_parameters_from_numpy_array(z, params_names)
-        return self.objective(new_ind.to_numpy())
+        return self.objective(new_ind)
 
     def _determine_utility(
         self, s: "np.ndarray[float]", z: "np.ndarray[float]", fitness: "np.ndarray[float]",

@@ -51,13 +51,14 @@ def f_target(x):
 # individual.
 
 
-def inner_objective(f, seed):
+def inner_objective(ind, seed):
     """Return a loss for the numpy-compatible function f. Used for
     calculating the fitness of each individual and for the local
     search of numeric leaf values.
 
     """
 
+    f = ind.to_numpy()
     rng = np.random.RandomState(seed)
     batch_size = 500
     x = rng.uniform(-5, 5, size=(batch_size, 1))
@@ -68,11 +69,10 @@ def inner_objective(f, seed):
 def objective(individual, seed):
     """Objective function of the regression task."""
 
-    if individual.fitness is not None:
+    if not individual.fitness_is_None():
         return individual
 
-    f = individual.to_numpy()
-    individual.fitness = inner_objective(f, seed)
+    individual.fitness = inner_objective(individual, seed)
 
     return individual
 
