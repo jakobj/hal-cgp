@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class EvolutionStrategies:
     def __init__(
         self,
-        objective: Callable[[IndividualBase], float],
+        objective: Callable[["IndividualBase"], float],
         seed: int,
         *,
         learning_rate_mu: float = 1.0,

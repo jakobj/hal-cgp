@@ -24,7 +24,8 @@ def test_step_towards_maximum(rng_seed):
     ind = cgp.individual.IndividualSingleGenome(genome)
     ind.idx = 0
 
-    def objective(f):
+    def objective(ind):
+        f = ind.to_numpy()
         x_dummy = np.zeros((1, 1))  # input, not used
         target_value = np.array([[1.0, 1.1]])
         return -np.sum((f(x_dummy) - target_value) ** 2)
@@ -46,7 +47,8 @@ def test_step_towards_maximum(rng_seed):
     assert ind.genome._parameter_names_to_values["<p2>"] < 1.2
 
 
-def _objective_convergence_to_maximum(f):
+def _objective_convergence_to_maximum(ind):
+    f = ind.to_numpy()
     x_dummy = np.zeros((1, 1))  # input, not used
     target_value = np.array([[1.0, 1.1]])
     return -np.sum((f(x_dummy) - target_value) ** 2)
@@ -112,7 +114,8 @@ def test_step_towards_maximum_multi_genome(rng_seed):
     ind = cgp.individual.IndividualMultiGenome([genome, genome2])
     ind.idx = 0
 
-    def objective(f):
+    def objective(ind):
+        f = ind.to_numpy()
         x_dummy = np.zeros((1, 1))  # input, not used
         target_value = np.array([[1.0, 1.1]])
         return -np.sum((f[0](x_dummy) - target_value) ** 2) - np.sum(
