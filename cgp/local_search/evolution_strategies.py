@@ -73,6 +73,7 @@ class EvolutionStrategies:
 
         """
         self.objective = objective
+        self.seed = seed
         self.learning_rate_mu = learning_rate_mu
         self.learning_rate_sigma = learning_rate_sigma
         self.population_size = population_size
@@ -81,8 +82,6 @@ class EvolutionStrategies:
         self.fitness_shaping = fitness_shaping
         self.mirrored_sampling = mirrored_sampling
         self.n_processes = n_processes
-
-        self.rng = np.random.RandomState(seed)
 
         self.sigma: Dict[int, np.ndarray[float]] = {}
 
@@ -93,6 +92,8 @@ class EvolutionStrategies:
             process_pool = mp.Pool(processes=self.n_processes)
         else:
             process_pool = None
+
+        rng = np.random.RandomState(self.seed)
 
         mu: np.ndarray[float]
         params_names: List[str]
@@ -130,7 +131,7 @@ class EvolutionStrategies:
 
                 s: np.ndarray[float]
                 z: np.ndarray[float]
-                s, z = self._sample_s_and_z(mu, sigma, population_size)
+                s, z = self._sample_s_and_z(mu, sigma, population_size, rng)
 
                 fitness: np.ndarray[float]
                 if self.n_processes == 1:
@@ -160,9 +161,9 @@ class EvolutionStrategies:
             process_pool.close()
 
     def _sample_s_and_z(
-        self, mu: np.ndarray, sigma: np.ndarray, population_size: int,
+        self, mu: np.ndarray, sigma: np.ndarray, population_size: int, rng
     ) -> Tuple["np.ndarray[float]", "np.ndarray[float]"]:
-        s: np.ndarray[float] = self.rng.normal(0, 1, size=(population_size, *mu.shape))
+        s: np.ndarray[float] = rng.normal(0, 1, size=(population_size, *mu.shape))
         z: np.ndarray[float] = mu + sigma * s
 
         if self.mirrored_sampling:
