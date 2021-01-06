@@ -163,7 +163,7 @@ class EvolutionStrategies:
             process_pool.close()
 
     def _sample_s_and_z(
-        self, mu: np.ndarray, sigma: np.ndarray, population_size: int, rng
+        self, mu: np.ndarray, sigma: np.ndarray, population_size: int, rng: "np.random.RandomState"
     ) -> Tuple["np.ndarray[float]", "np.ndarray[float]"]:
         s: np.ndarray[float] = rng.normal(0, 1, size=(population_size, *mu.shape))
         z: np.ndarray[float] = mu + sigma * s
