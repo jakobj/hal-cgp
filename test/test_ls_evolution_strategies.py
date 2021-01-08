@@ -83,16 +83,6 @@ def test_convergence_to_maximum(rng_seed):
     assert ind.genome._parameter_names_to_values["<p1>"] == pytest.approx(1.0)
     assert ind.genome._parameter_names_to_values["<p2>"] == pytest.approx(1.1)
 
-    # two processes
-    ind.genome._parameter_names_to_values["<p1>"] = 0.85
-    ind.genome._parameter_names_to_values["<p2>"] = 0.95
-    es = cgp.local_search.EvolutionStrategies(
-        _objective_convergence_to_maximum, rng_seed, max_generations=60, n_processes=2,
-    )
-    es(ind)
-    assert ind.genome._parameter_names_to_values["<p1>"] == pytest.approx(1.0)
-    assert ind.genome._parameter_names_to_values["<p2>"] == pytest.approx(1.1)
-
 
 def test_step_towards_maximum_multi_genome(rng_seed):
     primitives = (cgp.Parameter,)

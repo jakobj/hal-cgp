@@ -1,6 +1,5 @@
 import functools
 import math
-import multiprocessing as mp
 from typing import TYPE_CHECKING, Callable, Dict, List, Tuple, Union
 
 import numpy as np
@@ -22,7 +21,6 @@ class EvolutionStrategies:
         min_sigma: float = 1e-6,
         fitness_shaping: bool = True,
         mirrored_sampling: bool = True,
-        n_processes: int = 1
     ) -> None:
         """Evolution strategies using the natural gradient of multinormal
         search distributions in natural coordinates.
@@ -68,8 +66,6 @@ class EvolutionStrategies:
         mirrored_sampling : bool, optional
             Whether to use mirrored sampling. WARNING: Doubles the number
             of samples per generation. Defaults to True.
-        n_processes : int, optional
-            Number of parallel processes. Defaults to 1.
 
         """
         self.objective = objective
@@ -81,17 +77,10 @@ class EvolutionStrategies:
         self.min_sigma = min_sigma
         self.fitness_shaping = fitness_shaping
         self.mirrored_sampling = mirrored_sampling
-        self.n_processes = n_processes
 
         self.sigma: Dict[int, np.ndarray[float]] = {}
 
     def __call__(self, ind: "IndividualBase") -> None:
-
-        process_pool: Union[None, mp.pool.Pool]
-        if self.n_processes > 1:
-            process_pool = mp.Pool(processes=self.n_processes)
-        else:
-            process_pool = None
 
         rng = np.random.RandomState(self.seed)
 
@@ -133,12 +122,7 @@ class EvolutionStrategies:
                 z: np.ndarray[float]
                 s, z = self._sample_s_and_z(mu, sigma, population_size, rng)
 
-                fitness: np.ndarray[float]
-                if self.n_processes == 1:
-                    fitness = np.fromiter(map(obj, z), np.float)
-                else:
-                    assert isinstance(process_pool, mp.pool.Pool)
-                    fitness = np.fromiter(process_pool.map(obj, z), np.float)
+                fitness: np.ndarray[float] = np.fromiter(map(obj, z), np.float)
 
                 s, z, utility = self._determine_utility(s, z, fitness)
 
@@ -157,10 +141,6 @@ class EvolutionStrategies:
         # propagation over many generations
         assert isinstance(ind.idx, int)
         self.sigma[ind.idx] = sigma.copy()
-
-        if self.n_processes > 1:
-            assert process_pool is not None
-            process_pool.close()
 
     def _sample_s_and_z(
         self, mu: np.ndarray, sigma: np.ndarray, population_size: int, rng: "np.random.RandomState"
