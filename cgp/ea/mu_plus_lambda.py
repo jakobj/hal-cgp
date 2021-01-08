@@ -154,7 +154,7 @@ class MuPlusLambda:
 
         if self.local_search is not None:
             assert isinstance(pop.champion.fitness, float)
-            prev_max_fitness: float = pop.champion.fitness
+            prev_avg_fitness: float = np.mean([ind.fitness for ind in combined])
 
             combined_copy = [ind.copy() for ind in combined]
 
@@ -179,7 +179,13 @@ class MuPlusLambda:
 
             combined = self._sort(new_combined)
 
-            assert pop.champion.fitness >= prev_max_fitness
+            avg_fitness: float = np.mean([ind.fitness for ind in combined])
+            if prev_avg_fitness >= avg_fitness:
+                raise RuntimeError(
+                    "The average fitness decreased after executing the local search. This"
+                    "indicates that something went wrong during the"
+                    "optimization. Aborting."
+                )
 
         pop.parents = self._create_new_parent_population(pop.n_parents, combined)
 
