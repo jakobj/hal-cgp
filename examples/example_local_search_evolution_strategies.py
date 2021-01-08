@@ -113,8 +113,8 @@ pop = cgp.Population(**population_params, genome_params=genome_params)
 # EvolutionStrategies can be called with an individual as an argument
 # for which the local search is performed
 local_search = cgp.local_search.EvolutionStrategies(
-    objective=functools.partial(inner_objective, seed=population_params["seed"]),
-    seed=population_params["seed"],
+    objective=functools.partial(inner_objective, seed=population_params["seed"] + 1),
+    seed=population_params["seed"] + 2,
     **local_search_params,
 )
 
@@ -134,7 +134,7 @@ def recording_callback(pop):
     history["fitness_parents"].append(pop.fitness_parents())
 
 
-obj = functools.partial(objective, seed=population_params["seed"])
+obj = functools.partial(objective, seed=population_params["seed"] + 1)
 
 # %%
 # Finally, we call the `evolve` method to perform the evolutionary search.
