@@ -82,7 +82,7 @@ def objective(individual, seed):
 # individuals, the evolutionary algorithm, and the local search.
 
 
-population_params = {"n_parents": 1, "mutation_rate": 0.05, "seed": 818821}
+population_params = {"n_parents": 1, "seed": 818821}
 
 genome_params = {
     "n_inputs": 1,
@@ -93,7 +93,7 @@ genome_params = {
     "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.Parameter),
 }
 
-ea_params = {"n_offsprings": 4, "tournament_size": 1, "n_processes": 1, "k_local_search": 2}
+ea_params = {"n_offsprings": 4, "mutation_rate": 0.05, "tournament_size": 1, "n_processes": 1, "k_local_search": 2}
 
 evolve_params = {"max_generations": int(args["--max-generations"]), "min_fitness": 0.0}
 
