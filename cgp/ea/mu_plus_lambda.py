@@ -180,7 +180,7 @@ class MuPlusLambda:
             combined = self._sort(new_combined)
 
             avg_fitness: float = np.mean([ind.fitness for ind in combined])
-            if prev_avg_fitness >= avg_fitness:
+            if prev_avg_fitness > avg_fitness:
                 raise RuntimeError(
                     "The average fitness decreased after executing the local search. This"
                     "indicates that something went wrong during the"
