@@ -61,7 +61,7 @@ class EvolutionStrategies:
             Maximal number of generations. Defaults to 10.
         min_sigma : float, optional
             Minimal value for standard deviation of search
-            distribution. Defaults to 1e-6.
+            distribution. Defaults to 1e-9.
         fitness_shaping : bool, optional
             Whether to use fitness shaping. Defaults to True.
         mirrored_sampling : bool, optional
