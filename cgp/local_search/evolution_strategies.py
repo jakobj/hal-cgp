@@ -1,3 +1,4 @@
+import collections
 import functools
 import math
 from typing import TYPE_CHECKING, Callable, Dict, List, Tuple, Union
@@ -18,7 +19,7 @@ class EvolutionStrategies:
         learning_rate_sigma: Union[None, float] = None,
         population_size: Union[None, int] = None,
         max_generations: int = 10,
-        min_sigma: float = 1e-6,
+        min_sigma: float = 1e-9,
         fitness_shaping: bool = True,
         mirrored_sampling: bool = True,
     ) -> None:
@@ -78,7 +79,7 @@ class EvolutionStrategies:
         self.fitness_shaping = fitness_shaping
         self.mirrored_sampling = mirrored_sampling
 
-        self.sigma: Dict[int, np.ndarray[float]] = {}
+        self.sigma: Dict[int, Dict[str, np.ndarray[float]]] = collections.defaultdict(dict)
 
     def __call__(self, ind: "IndividualBase") -> None:
 
@@ -88,18 +89,7 @@ class EvolutionStrategies:
         params_names: List[str]
         mu, params_names = ind.parameters_to_numpy_array(only_active_nodes=True)
 
-        sigma: np.ndarray[float]
-        if ind.idx in self.sigma:  # try loading sigma
-            sigma = self.sigma[ind.idx]
-            assert len(sigma) == len(mu)
-        elif ind.parent_idx in self.sigma and len(mu) == len(
-            self.sigma[ind.parent_idx]
-        ):  # try loading sigma from parent
-            sigma = self.sigma[ind.parent_idx]
-        else:
-            # as a simple heuristic initialize sigma to 10% of the
-            # mean value
-            sigma = 0.1 * np.abs(mu.copy())
+        sigma: np.ndarray[float] = self._load_sigma(ind, mu, params_names)
 
         if len(mu) > 0:
             if self.learning_rate_sigma is None:
@@ -140,7 +130,25 @@ class EvolutionStrategies:
         # store their sigma whether they have changed or not to allow
         # propagation over many generations
         assert isinstance(ind.idx, int)
-        self.sigma[ind.idx] = sigma.copy()
+        self._store_sigma(ind.idx, sigma, params_names)
+
+    def _load_sigma(
+        self, ind: "IndividualBase", mu: "np.ndarray[float]", params_names: List[str]
+    ) -> "np.ndarray[float]":
+        sigma: List[float] = []
+        for i, p in enumerate(params_names):
+            if ind.idx in self.sigma and p in self.sigma[ind.idx]:
+                sigma.append(self.sigma[ind.idx][p])
+            elif ind.parent_idx in self.sigma and p in self.sigma[ind.parent_idx]:
+                sigma.append(self.sigma[ind.parent_idx][p])
+            else:
+                sigma.append(0.1 * np.abs(mu[i]))
+
+        return np.array(sigma)
+
+    def _store_sigma(self, idx: int, sigma: "np.ndarray[float]", params_names: List[str]) -> None:
+        for i, p in enumerate(params_names):
+            self.sigma[idx][p] = sigma[i]
 
     def _sample_s_and_z(
         self, mu: np.ndarray, sigma: np.ndarray, population_size: int, rng: "np.random.RandomState"
