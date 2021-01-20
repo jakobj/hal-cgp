@@ -656,7 +656,7 @@ def test_genome_reordering_parameterization_consistency(rng):
 def test_parameters_to_numpy_array():
 
     primitives = (cgp.Parameter,)
-    genome = cgp.Genome(1, 1, 2, 1, None, primitives)
+    genome = cgp.Genome(1, 1, 2, 1, primitives)
     # [f0(x), f1(x)] = [c1, c2]
     genome.dna = [
         ID_INPUT_NODE,
@@ -689,7 +689,7 @@ def test_parameters_to_numpy_array():
 def test_update_parameters_from_numpy_array():
 
     primitives = (cgp.Parameter,)
-    genome = cgp.Genome(1, 1, 2, 1, None, primitives)
+    genome = cgp.Genome(1, 1, 2, 1, primitives)
     # [f0(x), f1(x)] = [c1, c2]
     genome.dna = [
         ID_INPUT_NODE,
@@ -720,7 +720,7 @@ def test_update_parameters_from_numpy_array():
 
 def test_parameters_numpy_array_consistency():
     primitives = (cgp.Parameter,)
-    genome = cgp.Genome(1, 1, 2, 1, None, primitives)
+    genome = cgp.Genome(1, 1, 2, 1, primitives)
     # [f0(x), f1(x)] = [c1, c2]
     genome.dna = [
         ID_INPUT_NODE,

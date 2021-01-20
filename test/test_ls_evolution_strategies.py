@@ -7,7 +7,7 @@ from cgp.genome import ID_INPUT_NODE, ID_NON_CODING_GENE, ID_OUTPUT_NODE
 
 def test_step_towards_maximum(rng_seed):
     primitives = (cgp.Parameter,)
-    genome = cgp.Genome(1, 2, 2, 1, None, primitives)
+    genome = cgp.Genome(1, 2, 2, 1, primitives)
     # [f0(x), f1(x)] = [c1, c2]
     genome.dna = [
         ID_INPUT_NODE,
@@ -56,7 +56,7 @@ def _objective_convergence_to_maximum(ind):
 
 def test_convergence_to_maximum(rng_seed):
     primitives = (cgp.Parameter,)
-    genome = cgp.Genome(1, 2, 2, 1, None, primitives)
+    genome = cgp.Genome(1, 2, 2, 1, primitives)
     # [f0(x), f1(x)] = [c1, c2]
     genome.dna = [
         ID_INPUT_NODE,
@@ -86,7 +86,7 @@ def test_convergence_to_maximum(rng_seed):
 
 def test_step_towards_maximum_multi_genome(rng_seed):
     primitives = (cgp.Parameter,)
-    genome = cgp.Genome(1, 2, 2, 1, None, primitives)
+    genome = cgp.Genome(1, 2, 2, 1, primitives)
     # [f0(x), f1(x)] = [c1, c2]
     genome.dna = [
         ID_INPUT_NODE,
