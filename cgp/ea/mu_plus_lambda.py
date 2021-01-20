@@ -166,16 +166,9 @@ class MuPlusLambda:
 
             combined_copy = self._compute_fitness(combined_copy, objective)
 
-            new_combined = []
-            for ind in combined:
-                for ind_copy in combined_copy:
-                    if ind.idx == ind_copy.idx:
-                        assert ind.fitness is not None
-                        assert ind_copy.fitness is not None
-                        if ind.fitness < ind_copy.fitness:
-                            new_combined.append(ind_copy)
-                        else:
-                            new_combined.append(ind)
+            new_combined = self._create_new_combined_population_after_local_search(
+                combined, combined_copy
+            )
 
             combined = self._sort(new_combined)
 
@@ -190,6 +183,22 @@ class MuPlusLambda:
         pop.parents = self._create_new_parent_population(pop.n_parents, combined)
 
         return pop
+
+    @staticmethod
+    def _create_new_combined_population_after_local_search(
+        combined: List["IndividualBase"], combined_copy: List["IndividualBase"]
+    ) -> List["IndividualBase"]:
+        new_combined: List["IndividualBase"] = []
+        for ind in combined:
+            for ind_copy in combined_copy:
+                if ind.idx == ind_copy.idx:
+                    assert ind.fitness is not None
+                    assert ind_copy.fitness is not None
+                    if ind.fitness < ind_copy.fitness:
+                        new_combined.append(ind_copy)
+                    else:
+                        new_combined.append(ind)
+        return new_combined
 
     def _create_new_offspring_generation(self, pop: Population) -> List[IndividualBase]:
         # use tournament selection to randomly select individuals from
