@@ -235,7 +235,7 @@ def disk_cache(
         __check_cache_consistency(fn, func)
 
         @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Union[float, None]:
+        def wrapper(*args: Any, **kwargs: Any) -> float:
 
             key: str = compute_key(*args, **kwargs)
 
