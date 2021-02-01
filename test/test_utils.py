@@ -416,3 +416,33 @@ def test_fec_cache_decorator_with_additional_arguments(genome_params, rng, rng_s
     y1 = inner_objective(ind, 10)
 
     assert y0 != pytest.approx(y1)
+
+
+def test_custom_compute_key_for_disk_cache(individual, rng):
+    @cgp.utils.disk_cache(
+        tempfile.mkstemp()[1], compute_key=cgp.utils.compute_key_from_numpy_evaluation_and_args
+    )
+    def inner_objective(ind):
+        return ind.to_func()([1.0, 2.0])[0]
+
+    def my_compute_key(ind):
+        return 0
+
+    @cgp.utils.disk_cache(tempfile.mkstemp()[1], compute_key=my_compute_key)
+    def inner_objective_custom_compute_key(ind):
+        return ind.to_func()([1.0, 2.0])[0]
+
+    individual0 = individual.clone()
+    individual0.genome.randomize(rng)
+    individual1 = individual.clone()
+    individual1.genome.randomize(rng)
+
+    loss0 = inner_objective(individual0)
+    loss1 = inner_objective(individual1)
+
+    assert loss0 != pytest.approx(loss1)
+
+    loss0 = inner_objective_custom_compute_key(individual0)
+    loss1 = inner_objective_custom_compute_key(individual1)
+
+    assert loss0 == pytest.approx(loss1)
